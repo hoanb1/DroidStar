@@ -1,0 +1,62 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+
+    - name: Set up Android NDK
+      uses: nxtcoder17/setup-android-ndk@v1
+      with:
+        ndk-version: r25b
+
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v3
+      with:
+        version: '6.5.3'
+        target: 'android'
+        arch: 'android_arm64_v8a'
+
+    - name: Clone android_openssl
+      run: |
+        git clone https://github.com/KDAB/android_openssl.git android_openssl
+
+    - name: Configure CMake
+      run: |
+        cmake -S . -B build \
+          -DCMAKE_TOOLCHAIN_FILE=${{ env.ANDROID_NDK_HOME }}/build/cmake/android.toolchain.cmake \
+          -DANDROID_ABI=arm64-v8a \
+          -DANDROID_PLATFORM=android-31 \
+          -DQT_HOST_PATH=${{ env.QT_ROOT_DIR }}/gcc_64 \
+          -DCMAKE_PREFIX_PATH=${{ env.QT_ROOT_DIR }}/android_arm64_v8a \
+          -DCMAKE_BUILD_TYPE=Release
+
+    - name: Build Project
+      run: |
+        cmake --build build
+
+    - name: Build APK Target
+      run: |
+        cmake --build build --target apk
+
+    - name: Upload APK Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: DroidStar-Android-APK
+        path: build/**/*.apk

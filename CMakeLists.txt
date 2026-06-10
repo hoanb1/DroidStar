@@ -151,8 +151,24 @@ if(APPLE)
 endif()
 
 if(ANDROID)
-    include(~/Android/Sdk/android_openssl/android_openssl.cmake)
-    add_android_openssl_libraries(DroidStar)
+    set(OPENSSL_CMAKE_FOUND FALSE)
+    if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/android_openssl/android_openssl.cmake")
+        include("${CMAKE_CURRENT_SOURCE_DIR}/android_openssl/android_openssl.cmake")
+        set(OPENSSL_CMAKE_FOUND TRUE)
+    elseif(EXISTS "$ENV{HOME}/Android/Sdk/android_openssl/android_openssl.cmake")
+        include("$ENV{HOME}/Android/Sdk/android_openssl/android_openssl.cmake")
+        set(OPENSSL_CMAKE_FOUND TRUE)
+    elseif(EXISTS "$ENV{ANDROID_SDK_ROOT}/android_openssl/android_openssl.cmake")
+        include("$ENV{ANDROID_SDK_ROOT}/android_openssl/android_openssl.cmake")
+        set(OPENSSL_CMAKE_FOUND TRUE)
+    endif()
+
+    if(OPENSSL_CMAKE_FOUND)
+        add_android_openssl_libraries(DroidStar)
+    else()
+        message(WARNING "android_openssl.cmake not found. Building without OpenSSL libraries integration.")
+    endif()
+
     target_sources(DroidStar PUBLIC
         androidserialport.cpp androidserialport.h
     )
@@ -210,7 +226,9 @@ if(FALSE) # set TRUE for flite
     )
 endif()
 
-if(TRUE) # set TRUE for md380_vocoder
+option(USE_MD380_VOCODER "Build with MD380 vocoder" OFF)
+
+if(USE_MD380_VOCODER)
     target_compile_definitions(DroidStar PRIVATE
         USE_MD380_VOCODER
     )

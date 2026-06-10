@@ -718,6 +718,12 @@ void DroidStar::process_settings()
 	m_dstarusertxt = m_settings->value("USRTXT").toString().simplified();
 	m_xrf2ref = (m_settings->value("XRF2REF").toString().simplified() == "true") ? true : false;
 	m_localhosts = m_settings->value("LOCALHOSTS").toString();
+	if (m_localhosts.trimmed().isEmpty()) {
+		m_localhosts = "DMR HAMVN-DMR-62031 dmr.hamvn.com 62031 Qmi7QzVKt4P9eb_hamvn\n"
+		               "DMR HAMVN-DMR-62032 dmr.hamvn.com 62031 Qmi7QzVKt4P9eb_hamvn\n"
+		               "DMR HAMVN-DMR-62033 dmr.hamvn.com 62031 Qmi7QzVKt4P9eb_hamvn";
+		m_settings->setValue("LOCALHOSTS", m_localhosts);
+	}
 
 	m_modemRxFreq = m_settings->value("ModemRxFreq", "438800000").toString().simplified();
 	m_modemTxFreq = m_settings->value("ModemTxFreq", "438800000").toString().simplified();
