@@ -44,6 +44,11 @@ jobs:
       run: |
         git clone https://github.com/KDAB/android_openssl.git android_openssl
 
+    - name: Clean up incompatible Android SDK Platforms
+      run: |
+        rm -rf $ANDROID_SDK_ROOT/platforms/android-35*
+        rm -rf $ANDROID_SDK_ROOT/platforms/android-36*
+
     - name: Configure CMake
       run: |
         cmake -S . -B build \
