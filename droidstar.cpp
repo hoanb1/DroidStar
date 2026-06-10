@@ -42,6 +42,9 @@ DroidStar::DroidStar(QObject *parent) :
     m_tts(0)
 {
 	qRegisterMetaType<Mode::MODEINFO>("Mode::MODEINFO");
+	m_reconnectTimer = new QTimer(this);
+	m_reconnectTimer->setSingleShot(true);
+	connect(m_reconnectTimer, SIGNAL(timeout()), this, SLOT(process_connect()));
 	m_settings_processed = false;
 	m_modelchange = false;
 	connect_status = Mode::DISCONNECTED;
@@ -73,6 +76,9 @@ DroidStar::DroidStar(QObject *parent) :
 
 DroidStar::~DroidStar()
 {
+	if (m_reconnectTimer) {
+		m_reconnectTimer->stop();
+	}
 }
 
 #ifdef Q_OS_ANDROID
@@ -288,6 +294,9 @@ void DroidStar::obtain_asl_wt_creds()
 
 void DroidStar::process_connect()
 {
+	if (m_reconnectTimer) {
+		m_reconnectTimer->stop();
+	}
 	if(connect_status != Mode::DISCONNECTED){
         if(connect_status == Mode::TIMEOUT){
             m_errortxt = "Connection timed out";
@@ -496,7 +505,10 @@ void DroidStar::process_connect()
 void DroidStar::schedule_reconnect(int ms)
 {
 	qDebug() << "schedule_reconnect called, reconnecting in" << ms << "ms";
-	QTimer::singleShot(ms, this, SLOT(process_connect()));
+	if (m_reconnectTimer) {
+		m_reconnectTimer->stop();
+		m_reconnectTimer->start(ms);
+	}
 }
 
 void DroidStar::process_host_change(const QString &h)

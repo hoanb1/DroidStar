@@ -324,6 +324,7 @@ private:
 	QStringList m_customhosts;
 	QThread *m_modethread;
 	Mode *m_mode;
+	QTimer *m_reconnectTimer = nullptr;
 	QByteArray user_data;
 	QString m_localhosts;
 	int m_iaxport;
