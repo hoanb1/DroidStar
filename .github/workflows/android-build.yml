@@ -30,6 +30,7 @@ jobs:
       uses: jurplel/install-qt-action@v3
       with:
         version: '6.5.3'
+        modules: 'qtmultimedia qtserialport'
 
     - name: Install Android Qt
       uses: jurplel/install-qt-action@v3
@@ -37,6 +38,7 @@ jobs:
         version: '6.5.3'
         target: 'android'
         arch: 'android_arm64_v8a'
+        modules: 'qtmultimedia qtserialport'
 
     - name: Clone android_openssl
       run: |
